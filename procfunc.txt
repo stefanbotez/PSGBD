@@ -1,0 +1,27 @@
+CREATE OR REPLACE PROCEDURE GETUSERBYID 
+(
+  P_USER_ID IN USERS.USER_ID%TYPE 
+, P_FIRST_NAME OUT USERS.FIRST_NAME%TYPE 
+, P_LAST_NAME OUT USERS.LAST_NAME%TYPE
+) AS 
+BEGIN
+  SELECT first_name, last_name INTO P_FIRST_NAME, P_LAST_NAME FROM USERS WHERE USER_ID = P_USER_ID;
+END GETUSERBYID;
+
+create or replace FUNCTION USER_EXISTS 
+(
+  P_EMAIL IN CREDENTIALS.EMAIL%TYPE 
+, P_PASSWORD IN CREDENTIALS.PASSWORD%TYPE 
+) RETURN NUMBER AS 
+  l_count integer;
+BEGIN
+  select count(*)
+  into   l_count
+  from   credentials
+  where  email = p_email
+  and    password = p_password;
+
+  if (l_count > 0) then return 1;
+  else return 0;
+  end if;
+END USER_EXISTS;

@@ -1,17 +1,16 @@
+import controllers.CredentialsController;
+import controllers.UserController;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class Main {
     public static void main(String[] args) {
+        UserController uc = new UserController();
+        CredentialsController cc = new CredentialsController();
         try {
-            try {
-                Class.forName("oracle.jdbc.driver.OracleDriver");
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
-            }
-            Connection con = DriverManager.getConnection(
-                    "jdbc:oracle:thin:@localhost:1521:xe", "STUDENT", "STUDENTI");
+            System.out.println(cc.login("citea.aurelian642@gmail.ro", "password"));
         } catch (SQLException e) {
             e.printStackTrace();
         }
