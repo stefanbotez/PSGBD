@@ -1,5 +1,4 @@
-import controllers.CredentialsController;
-import controllers.UserController;
+import controllers.*;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -9,10 +8,11 @@ public class Main {
     public static void main(String[] args) {
         UserController uc = new UserController();
         CredentialsController cc = new CredentialsController();
-        try {
-            System.out.println(cc.login("citea.aurelian642@gmail.ro", "password"));
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        ListenedController lc = new ListenedController();
+        ContainsController coc = new ContainsController();
+        CategorizedController cac = new CategorizedController();
+        SangByController sbc = new SangByController();
+        System.out.println(lc.getSongFreqForUser(1,5070));
+
     }
 }
