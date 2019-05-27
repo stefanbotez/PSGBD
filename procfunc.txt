@@ -7,6 +7,7 @@ CREATE OR REPLACE PROCEDURE GETUSERBYID
 BEGIN
   SELECT first_name, last_name INTO P_FIRST_NAME, P_LAST_NAME FROM USERS WHERE USER_ID = P_USER_ID;
 END GETUSERBYID;
+/
 
 create or replace FUNCTION USER_EXISTS 
 (
@@ -25,3 +26,113 @@ BEGIN
   else return 0;
   end if;
 END USER_EXISTS;
+/
+
+create or replace type varr is varray(100) of number;
+ /
+ 
+CREATE OR REPLACE FUNCTION topn(p_user_id users.user_id%TYPE, p_n NUMBER) return varr
+IS
+  CURSOR topsongs (p_user_id users.user_id%type, p_n NUMBER) IS
+    SELECT song_id FROM (SELECT song_id FROM listened WHERE user_id = p_user_id ORDER BY nolistenes) WHERE ROWNUM <= p_n;
+  
+  v_linie topsongs%rowtype;
+
+  v_array  varr := varr();
+begin
+  OPEN topsongs(p_user_id, p_n);
+  LOOP
+      FETCH topsongs INTO v_linie;
+      EXIT WHEN topsongs%NOTFOUND;
+      v_array.EXTEND;
+      v_array(v_array.COUNT) := v_linie.song_id;
+  END LOOP;
+  CLOSE topsongs;
+  
+  return v_array;
+end;
+/
+
+CREATE OR REPLACE FUNCTION intersection(p_arr1 varr, p_arr2 varr) return number
+IS
+
+  v_count number := 0;
+begin
+  for i in p_arr1.first..p_arr1.last loop
+    for j in p_arr2.first..p_arr2.last loop
+    if(p_arr1(i) = p_arr2(j)) then
+      v_count := v_count + 1;
+    end if;
+    end loop;
+  end loop;
+  
+  return v_count;
+end;
+/
+
+CREATE OR REPLACE FUNCTION getsongsdiff (p_user_id users.user_id%TYPE, p_arr varr, p_n NUMBER) return varr
+IS
+  v_array  varr := varr();
+  v_top_songs varr := varr();
+  ok number;
+BEGIN
+  
+  v_top_songs := topn(p_user_id, p_n + 10);
+  
+  for i in v_top_songs.first..v_top_songs.last loop
+    if(v_array.count = p_n) then
+      exit;
+    end if;
+    
+    ok := 1;
+    for j in p_arr.first..p_arr.last loop     
+      if(v_top_songs(i) = p_arr(j)) then
+        ok := 0;
+        exit;
+      end if;     
+    end loop;
+    if(ok = 1) then
+      v_array.extend;
+      v_array(v_array.count) := v_top_songs(i);
+    end if;
+
+  end loop;
+  
+  return v_array;
+END;
+
+/
+CREATE OR REPLACE FUNCTION RECOMMEND 
+(
+  P_USER_ID IN USERS.USER_ID%TYPE 
+) RETURN VARR IS 
+
+  top10 varr := topn(p_user_id, 10);
+  
+  CURSOR usersRecommend IS
+    SELECT user_id FROM (SELECT user_id FROM users WHERE user_id != p_user_id ORDER BY INTERSECTION(top10, topn(user_id, 20)) DESC) WHERE ROWNUM <= 10;
+    
+  v_linie usersRecommend%rowtype;
+
+  v_arraySongs varr := varr();
+  v_array varr := varr();
+BEGIN
+  OPEN usersRecommend;
+  LOOP
+      FETCH usersRecommend INTO v_linie;
+      EXIT WHEN usersRecommend%NOTFOUND;
+      
+      v_arraySongs := getsongsdiff(v_linie.user_id, top10, 3);
+      
+      for i in v_arraySongs.first..v_arraySongs.last loop
+        v_array.EXTEND;
+        v_array(v_array.COUNT) := v_arraySongs(i);
+      end loop;
+      
+
+  END LOOP;
+  CLOSE usersRecommend;
+  
+  return v_array;
+END RECOMMEND;
+/
