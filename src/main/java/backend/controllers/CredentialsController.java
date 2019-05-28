@@ -29,4 +29,18 @@ public class CredentialsController {
         int result = cstmt.getInt(1);
         return result==1?true:false;
     }
+
+    public void register(String firstName, String lastName, String email, String password)
+            throws SQLException
+    {
+        Connection con = Database.getConnection();
+
+        CallableStatement cstmt = con.prepareCall("{call REGISTER(?, ?, ?, ?)}");
+        cstmt.setString(1, firstName);
+        cstmt.setString(2, lastName);
+        cstmt.setString(3, email);
+        cstmt.setString(4, password);
+        cstmt.executeUpdate();
+        Database.commit();
+    }
 }

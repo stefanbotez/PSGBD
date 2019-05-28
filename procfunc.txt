@@ -27,7 +27,6 @@ BEGIN
   end if;
 END USER_EXISTS;
 /
-
 create or replace type varr is varray(100) of number;
  /
  
@@ -104,8 +103,8 @@ END;
 /
 CREATE OR REPLACE FUNCTION RECOMMEND 
 (
-  P_USER_ID IN USERS.USER_ID%TYPE 
-) RETURN VARR IS 
+  P_USER_ID IN USERS.USER_ID%TYPE
+) RETURN varr IS 
 
   top10 varr := topn(p_user_id, 10);
   
@@ -135,4 +134,45 @@ BEGIN
   
   return v_array;
 END RECOMMEND;
+/
+
+CREATE OR REPLACE FUNCTION MOSTLISTENED 
+(
+  P_PAGE IN NUMBER,
+  P_PER_PAGE IN NUMBER
+) RETURN varr IS 
+
+  CURSOR topsongs IS
+    SELECT song_id FROM (SELECT song_id, rownum r FROM (SELECT song_id FROM listened GROUP BY song_id ORDER BY SUM(nolistenes) DESC)) WHERE r <= p_page * p_per_page AND r >= 1 + (p_page - 1) * p_per_page;
+    
+  v_linie topsongs%rowtype;
+
+  v_array varr := varr();
+BEGIN
+  OPEN topsongs;
+  LOOP
+      FETCH topsongs INTO v_linie;
+      EXIT WHEN topsongs%NOTFOUND;
+      v_array.EXTEND;
+      v_array(v_array.COUNT) := v_linie.song_id;
+  END LOOP;
+  CLOSE topsongs;
+  
+  return v_array;
+END MOSTLISTENED;
+/
+
+CREATE OR REPLACE PROCEDURE REGISTER 
+(
+  P_FIRSTNAME IN USERS.FIRST_NAME%TYPE
+, P_LASTNAME OUT USERS.LAST_NAME%TYPE 
+, P_EMAIL OUT CREDENTIALS.EMAIL%TYPE
+, P_PASSWORD IN CREDENTIALS.PASSWORD%TYPE
+) AS 
+  max_id number;
+BEGIN
+  SELECT max(user_id) into max_id from users;
+  insert into users(user_id, first_name, last_name) values(max_id+1, p_firstname, p_lastname);
+  insert into credentials(credential_id, email, password) values(max_id+1, p_email, p_password);
+END REGISTER;
 /
