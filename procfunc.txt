@@ -189,7 +189,7 @@ END REGISTER;
 CREATE OR REPLACE FUNCTION searchSongs(p_query VARCHAR2) return varr
 IS
   CURSOR src (p_q VARCHAR2) IS
-    SELECT song_id FROM songs WHERE title like '%'||p_q||'%';
+    SELECT song_id FROM songs WHERE LOWER(title) like '%'||LOWER(p_q)||'%';
   
   v_linie src%rowtype;
 
@@ -210,7 +210,7 @@ end;
 CREATE OR REPLACE FUNCTION searchArtists(p_query VARCHAR2) return varr
 IS
   CURSOR src (p_q VARCHAR2) IS
-    SELECT artist_id FROM artists WHERE name like '%'||p_q||'%';
+    SELECT artist_id FROM artists WHERE LOWER(name) like '%'||LOWER(p_q)||'%';
   
   v_linie src%rowtype;
 
@@ -231,7 +231,7 @@ end;
 CREATE OR REPLACE FUNCTION searchAlbums(p_query VARCHAR2) return varr
 IS
   CURSOR src (p_q VARCHAR2) IS
-    SELECT album_id FROM albums WHERE title like '%'||p_q||'%';
+    SELECT album_id FROM albums WHERE LOWER(title) like '%'||LOWER(p_q)||'%';
   
   v_linie src%rowtype;
 
@@ -252,7 +252,7 @@ end;
 CREATE OR REPLACE FUNCTION searchUsers(p_query VARCHAR2) return varr
 IS
   CURSOR src (p_q VARCHAR2) IS
-    SELECT user_id FROM users WHERE first_name||' '||last_name like '%'||p_q||'%';
+    SELECT user_id FROM users WHERE LOWER(first_name||' '||last_name) like '%'||LOWER(p_q)||'%';
   
   v_linie src%rowtype;
 
