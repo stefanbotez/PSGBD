@@ -15,14 +15,18 @@ create or replace FUNCTION USER_EXISTS
 , P_PASSWORD IN CREDENTIALS.PASSWORD%TYPE 
 ) RETURN NUMBER AS 
   l_count integer;
+  p_id users.user_id%TYPE;
 BEGIN
   select count(*)
   into   l_count
   from   credentials
   where  email = p_email
   and    password = p_password;
+  
 
-  if (l_count > 0) then return 1;
+  if (l_count > 0) then
+    select credential_id into p_id from credentials where email = p_email;
+    return p_id;
   else return 0;
   end if;
 END USER_EXISTS;
@@ -165,14 +169,22 @@ END MOSTLISTENED;
 CREATE OR REPLACE PROCEDURE REGISTER 
 (
   P_FIRSTNAME IN USERS.FIRST_NAME%TYPE
-, P_LASTNAME OUT USERS.LAST_NAME%TYPE 
-, P_EMAIL OUT CREDENTIALS.EMAIL%TYPE
+, P_LASTNAME IN USERS.LAST_NAME%TYPE 
+, P_EMAIL IN CREDENTIALS.EMAIL%TYPE
 , P_PASSWORD IN CREDENTIALS.PASSWORD%TYPE
+, P_RESULT OUT NUMERIC
 ) AS 
   max_id number;
+  v_cnt number;
 BEGIN
-  SELECT max(user_id) into max_id from users;
-  insert into users(user_id, first_name, last_name) values(max_id+1, p_firstname, p_lastname);
-  insert into credentials(credential_id, email, password) values(max_id+1, p_email, p_password);
+  select count(*) into v_cnt from credentials where email = p_email;
+  if(v_cnt = 0) then
+    SELECT max(user_id) into max_id from users;
+    insert into users(user_id, first_name, last_name) values(max_id+1, p_firstname, p_lastname);
+    insert into credentials(credential_id, email, password) values(max_id+1, p_email, p_password);
+    p_result := 1;
+  else 
+    p_result := 0;
+  end if;
 END REGISTER;
 /
