@@ -29,12 +29,8 @@ public class Main{
         FriendsController fc = new FriendsController();
         SearchController srcc = new SearchController();
 
-        try {
-            List<Integer> songs = sc.mostListened(1, 10);
-            System.out.println(songs);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        Album album = ac.getAlbumById(31);
+        System.out.println(album.getArtistName());
     }
 
 

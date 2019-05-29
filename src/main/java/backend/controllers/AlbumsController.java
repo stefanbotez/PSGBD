@@ -26,6 +26,7 @@ public class AlbumsController {
     }
 
     public Album getAlbumById(int id){
+        ArtistsController ac = new ArtistsController();
         SongsController sc = new SongsController();
         Connection con = Database.getConnection();
 
@@ -50,6 +51,19 @@ public class AlbumsController {
         }
         album.setSongIds(songIds);
         album.setSongNames(songNames);
+
+        try (Statement stmt = con.createStatement();
+             ResultSet rs = stmt.executeQuery(
+                     "select artist_id from sangby where song_id = " + songIds.get(1))) {
+            while(rs.next()){
+                album.setArtistId(rs.getInt(1));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        album.setArtistName(ac.getName(album.getArtistId()));
+
 
         return album;
     }
