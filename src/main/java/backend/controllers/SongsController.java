@@ -3,10 +3,8 @@ package backend.controllers;
 import backend.database.Database;
 import backend.model.Song;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.math.BigDecimal;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -55,5 +53,29 @@ public class SongsController {
 
 
         return song;
+    }
+
+    public List<Integer> mostListened(int page, int per_page) throws SQLException {
+        List<Integer> songs = new ArrayList<>();
+        Connection con = Database.getConnection();
+
+        String command = "begin ? := MOSTLISTENED(?, ?); end;";
+        CallableStatement cstmt = con.prepareCall(command);
+
+        cstmt.setInt(2, page);
+        cstmt.setInt(3, per_page);
+        cstmt.registerOutParameter(1, Types.ARRAY, "VARR");
+
+        cstmt.execute();
+
+        Array arr = cstmt.getArray(1);
+        if (arr != null) {
+            BigDecimal[] data = (BigDecimal[]) arr.getArray();
+            for (int i = 0; i < data.length; i++) {
+                songs.add(data[i].intValueExact());
+            }
+        }
+
+        return songs;
     }
 }

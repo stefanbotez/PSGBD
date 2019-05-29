@@ -29,13 +29,12 @@ public class Main{
         FriendsController fc = new FriendsController();
         SearchController srcc = new SearchController();
 
-        List<Integer> songs = null;
         try {
-            songs = srcc.searchSongs("o");
+            List<Integer> songs = sc.mostListened(1, 10);
+            System.out.println(songs);
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        System.out.println(songs);
     }
 
 
