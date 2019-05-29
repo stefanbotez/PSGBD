@@ -24,8 +24,11 @@ public class Main{
         AlbumsController ac = new AlbumsController();
         ArtistsController arc = new ArtistsController();
 
-            Artist artist = arc.getArtistById(1);
-        System.out.println(artist.getName());
+        try {
+            System.out.println(cc.register("xx", "xxy", "oprea.nicusor619@yahoo.ro", "password"));
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
 
     }
 

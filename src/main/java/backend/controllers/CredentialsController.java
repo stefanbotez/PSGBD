@@ -30,17 +30,21 @@ public class CredentialsController {
         return result==1?true:false;
     }
 
-    public void register(String firstName, String lastName, String email, String password)
+    public boolean register(String firstName, String lastName, String email, String password)
             throws SQLException
     {
         Connection con = Database.getConnection();
 
-        CallableStatement cstmt = con.prepareCall("{call REGISTER(?, ?, ?, ?)}");
+        CallableStatement cstmt = con.prepareCall("{call REGISTER(?, ?, ?, ?, ?)}");
         cstmt.setString(1, firstName);
         cstmt.setString(2, lastName);
         cstmt.setString(3, email);
         cstmt.setString(4, password);
+        cstmt.registerOutParameter(5, Types.NUMERIC);
+
         cstmt.executeUpdate();
         Database.commit();
+
+        return cstmt.getInt(5) == 1 ? true : false;
     }
 }
