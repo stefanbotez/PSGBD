@@ -1,6 +1,9 @@
 package backend;
 
 import backend.controllers.*;
+import backend.model.Album;
+import backend.model.Artist;
+import backend.model.Song;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -17,11 +20,13 @@ public class Main{
         ContainsController coc = new ContainsController();
         CategorizedController cac = new CategorizedController();
         SangByController sbc = new SangByController();
-        try {
-            System.out.println(uc.recommend(1));
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        SongsController sc = new SongsController();
+        AlbumsController ac = new AlbumsController();
+        ArtistsController arc = new ArtistsController();
+
+            Artist artist = arc.getArtistById(1);
+        System.out.println(artist.getName());
+
     }
 
 

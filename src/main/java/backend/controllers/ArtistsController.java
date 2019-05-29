@@ -40,7 +40,7 @@ public class ArtistsController {
         List<String> albumNames = new ArrayList<>();
         try (Statement stmt = con.createStatement();
              ResultSet rs = stmt.executeQuery(
-                     "select distinct c.album_id from sangby s natural join contains c where s.artist_id = " + id)) {
+                     "select distinct c.album_id from sangby s natural join contain c where s.artist_id = " + id)) {
             while(rs.next()){
                 albumIds.add(rs.getInt(1));
             }

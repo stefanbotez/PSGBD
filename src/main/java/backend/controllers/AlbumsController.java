@@ -37,7 +37,7 @@ public class AlbumsController {
         List<String> songNames = new ArrayList<>();
         try (Statement stmt = con.createStatement();
              ResultSet rs = stmt.executeQuery(
-                     "select song_id from sangby where album_id = " + id)) {
+                     "select song_id from contain where album_id = " + id)) {
             while(rs.next()){
                 songIds.add(rs.getInt(1));
             }
