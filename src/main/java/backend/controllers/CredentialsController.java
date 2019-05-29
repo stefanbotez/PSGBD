@@ -10,7 +10,7 @@ import java.sql.Types;
 
 public class CredentialsController {
 
-    public boolean login(String email, String password) throws SQLException {
+    public int login(String email, String password) throws SQLException {
         Connection con = Database.getConnection();
 
         String f_name;
@@ -27,7 +27,7 @@ public class CredentialsController {
         cstmt.executeUpdate();
 
         int result = cstmt.getInt(1);
-        return result==1?true:false;
+        return result;
     }
 
     public boolean register(String firstName, String lastName, String email, String password)
