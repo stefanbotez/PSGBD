@@ -29,7 +29,12 @@ public class Main{
         FriendsController fc = new FriendsController();
         SearchController srcc = new SearchController();
 
-        List<Integer> songs = srcc.searchSongs("o");
+        List<Integer> songs = null;
+        try {
+            songs = srcc.searchSongs("o");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         System.out.println(songs);
     }
 

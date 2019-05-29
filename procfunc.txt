@@ -17,21 +17,18 @@ create or replace FUNCTION USER_EXISTS
   l_count integer;
   p_id users.user_id%TYPE;
 BEGIN
-  select count(*)
-  into   l_count
-  from   credentials
-  where  email = p_email
-  and    password = p_password;
+  select credential_id into p_id from credentials where email = p_email;
+  return p_id;
   
-
-  if (l_count > 0) then
-    select credential_id into p_id from credentials where email = p_email;
-    return p_id;
-  else return 0;
-  end if;
+  EXCEPTION 
+  WHEN no_data_found THEN
+  RETURN 0;
+  
 END USER_EXISTS;
 /
-create or replace type varr is varray(100) of number;
+--CREATE INDEX idx ON listened(user_id, song_id);
+--/
+create or replace type varr is varray(10000) of number;
  /
  
 CREATE OR REPLACE FUNCTION topn(p_user_id users.user_id%TYPE, p_n NUMBER) return varr
@@ -187,4 +184,89 @@ BEGIN
     p_result := 0;
   end if;
 END REGISTER;
+/
+
+CREATE OR REPLACE FUNCTION searchSongs(p_query VARCHAR2) return varr
+IS
+  CURSOR src (p_q VARCHAR2) IS
+    SELECT song_id FROM songs WHERE title like '%'||p_q||'%';
+  
+  v_linie src%rowtype;
+
+  v_array  varr := varr();
+begin
+  OPEN src(p_query);
+  LOOP
+      FETCH src INTO v_linie;
+      EXIT WHEN src%NOTFOUND;
+      v_array.EXTEND;
+      v_array(v_array.COUNT) := v_linie.song_id;
+  END LOOP;
+  CLOSE src;
+  
+  return v_array;
+end;
+/
+CREATE OR REPLACE FUNCTION searchArtists(p_query VARCHAR2) return varr
+IS
+  CURSOR src (p_q VARCHAR2) IS
+    SELECT artist_id FROM artists WHERE name like '%'||p_q||'%';
+  
+  v_linie src%rowtype;
+
+  v_array  varr := varr();
+begin
+  OPEN src(p_query);
+  LOOP
+      FETCH src INTO v_linie;
+      EXIT WHEN src%NOTFOUND;
+      v_array.EXTEND;
+      v_array(v_array.COUNT) := v_linie.artist_id;
+  END LOOP;
+  CLOSE src;
+  
+  return v_array;
+end;
+/
+CREATE OR REPLACE FUNCTION searchAlbums(p_query VARCHAR2) return varr
+IS
+  CURSOR src (p_q VARCHAR2) IS
+    SELECT album_id FROM albums WHERE title like '%'||p_q||'%';
+  
+  v_linie src%rowtype;
+
+  v_array  varr := varr();
+begin
+  OPEN src(p_query);
+  LOOP
+      FETCH src INTO v_linie;
+      EXIT WHEN src%NOTFOUND;
+      v_array.EXTEND;
+      v_array(v_array.COUNT) := v_linie.album_id;
+  END LOOP;
+  CLOSE src;
+  
+  return v_array;
+end;
+/
+CREATE OR REPLACE FUNCTION searchUsers(p_query VARCHAR2) return varr
+IS
+  CURSOR src (p_q VARCHAR2) IS
+    SELECT user_id FROM users WHERE first_name||' '||last_name like '%'||p_q||'%';
+  
+  v_linie src%rowtype;
+
+  v_array  varr := varr();
+begin
+  OPEN src(p_query);
+  LOOP
+      FETCH src INTO v_linie;
+      EXIT WHEN src%NOTFOUND;
+      v_array.EXTEND;
+      v_array(v_array.COUNT) := v_linie.user_id;
+  END LOOP;
+  CLOSE src;
+  
+  return v_array;
+end;
 /

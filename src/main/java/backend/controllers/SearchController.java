@@ -2,104 +2,105 @@ package backend.controllers;
 
 import backend.database.Database;
 
+import java.math.BigDecimal;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class SearchController {
-    public List<Integer> searchSongs(String query){
-        List<Integer> songs = new ArrayList<>();
+    public List<Integer> searchSongs(String query) throws SQLException {
         Connection con = Database.getConnection();
-        String q = "select song_id from songs where title like ?";
-        try
-        {
-            PreparedStatement ps = con.prepareStatement(q);
-            ps.setString(1, "%" + query + "%");
 
-            ResultSet rs = ps.executeQuery();
-            while ( rs.next() )
-            {
-                songs.add(rs.getInt(1));
+        List<Integer> songs = new ArrayList<>();
+
+        String command = "begin ? := searchSongs(?); end;";
+        CallableStatement cstmt = con.prepareCall(command);
+
+        cstmt.setString(2, query);
+        cstmt.registerOutParameter(1, Types.ARRAY, "VARR");
+
+        cstmt.execute();
+
+        Array arr = cstmt.getArray(1);
+        if (arr != null) {
+            BigDecimal[] data = (BigDecimal[]) arr.getArray();
+            for (int i = 0; i < data.length; i++) {
+                songs.add(data[i].intValueExact());
             }
-            rs.close();
-            ps.close();
         }
-        catch (SQLException e)
-        {
-            e.printStackTrace();
-        }
+
         return songs;
     }
 
-    public List<Integer> searchArtist(String query){
-        List<Integer> artists = new ArrayList<>();
+    public List<Integer> searchArtist(String query) throws SQLException {
         Connection con = Database.getConnection();
-        String q = "select artist_id from artists where name like ?";
-        try
-        {
-            PreparedStatement ps = con.prepareStatement(q);
-            ps.setString(1, "%" + query + "%");
 
-            ResultSet rs = ps.executeQuery();
-            while ( rs.next() )
-            {
-                artists.add(rs.getInt(1));
+        List<Integer> artists = new ArrayList<>();
+
+        String command = "begin ? := searchArtists(?); end;";
+        CallableStatement cstmt = con.prepareCall(command);
+
+        cstmt.setString(2, query);
+        cstmt.registerOutParameter(1, Types.ARRAY, "VARR");
+
+        cstmt.execute();
+
+        Array arr = cstmt.getArray(1);
+        if (arr != null) {
+            BigDecimal[] data = (BigDecimal[]) arr.getArray();
+            for (int i = 0; i < data.length; i++) {
+                artists.add(data[i].intValueExact());
             }
-            rs.close();
-            ps.close();
         }
-        catch (SQLException e)
-        {
-            e.printStackTrace();
-        }
+
         return artists;
     }
 
-    public List<Integer> searchAlbums(String query){
-        List<Integer> albums = new ArrayList<>();
+    public List<Integer> searchAlbums(String query) throws SQLException {
         Connection con = Database.getConnection();
-        String q = "select album_id from albums where title like ?";
-        try
-        {
-            PreparedStatement ps = con.prepareStatement(q);
-            ps.setString(1, "%" + query + "%");
 
-            ResultSet rs = ps.executeQuery();
-            while ( rs.next() )
-            {
-                albums.add(rs.getInt(1));
+        List<Integer> albums = new ArrayList<>();
+
+        String command = "begin ? := searchAlbums(?); end;";
+        CallableStatement cstmt = con.prepareCall(command);
+
+        cstmt.setString(2, query);
+        cstmt.registerOutParameter(1, Types.ARRAY, "VARR");
+
+        cstmt.execute();
+
+        Array arr = cstmt.getArray(1);
+        if (arr != null) {
+            BigDecimal[] data = (BigDecimal[]) arr.getArray();
+            for (int i = 0; i < data.length; i++) {
+                albums.add(data[i].intValueExact());
             }
-            rs.close();
-            ps.close();
         }
-        catch (SQLException e)
-        {
-            e.printStackTrace();
-        }
+
         return albums;
     }
 
-    public List<Integer> searchUsers(String query){
-        List<Integer> users = new ArrayList<>();
+    public List<Integer> searchUsers(String query) throws SQLException {
         Connection con = Database.getConnection();
-        String q = "select user_id from users where first_name || ' ' || last_name like ?";
-        try
-        {
-            PreparedStatement ps = con.prepareStatement(q);
-            ps.setString(1, "%" + query + "%");
 
-            ResultSet rs = ps.executeQuery();
-            while ( rs.next() )
-            {
-                users.add(rs.getInt(1));
+        List<Integer> users = new ArrayList<>();
+
+        String command = "begin ? := searchUsers(?); end;";
+        CallableStatement cstmt = con.prepareCall(command);
+
+        cstmt.setString(2, query);
+        cstmt.registerOutParameter(1, Types.ARRAY, "VARR");
+
+        cstmt.execute();
+
+        Array arr = cstmt.getArray(1);
+        if (arr != null) {
+            BigDecimal[] data = (BigDecimal[]) arr.getArray();
+            for (int i = 0; i < data.length; i++) {
+                users.add(data[i].intValueExact());
             }
-            rs.close();
-            ps.close();
         }
-        catch (SQLException e)
-        {
-            e.printStackTrace();
-        }
+
         return users;
     }
 

@@ -45,7 +45,7 @@ public class SongsController {
         song.setArtistName(ac.getName(song.getArtistId()));
 
         try (Statement stmt = con.createStatement();
-             ResultSet rs = stmt.executeQuery("select album_id from containre where song_id = " + id)) {
+             ResultSet rs = stmt.executeQuery("select album_id from contain where song_id = " + id)) {
             if(rs.next())
                 song.setAlbumId(rs.getInt(1));
         } catch (SQLException e) {
